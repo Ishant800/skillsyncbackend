@@ -1,5 +1,5 @@
 const User = require("../models/usermodel.js");
-const bcrypt = require("bcrypt");
+
 const jwt = require("jsonwebtoken");
 const Profile = require("../models/userprofile.js");
 const Chat = require('../models/chat.js');
@@ -16,12 +16,12 @@ exports.register = async (req, res) => {
       return res.status(409).json({ message: "User already exists, try a new email" });
     }
 
-    const hashed = await bcrypt.hash(password, 8);
+    
 
     const user = new User({
       username,
       email,
-      password: hashed,
+      password,
     });
     const profile = await Profile.create({ user: user._id });
     user.profile = profile._id;
@@ -45,10 +45,7 @@ exports.userlogin = async (req, res) => {
       return res.status(404).send("User not found");
     }
 
-    const isMatched = await bcrypt.compare(password, user.password); // Async version
-    if (!isMatched) {
-      return res.status(401).send("Password incorrect");
-    }
+    
 
     const token = jwt.sign(
       { id: user._id, email: user.email },
